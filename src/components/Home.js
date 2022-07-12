@@ -11,7 +11,12 @@ export default function Home() {
   const [gamesData, setGamesData] = useState([]);
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  
+  const config = {
+    headers:{
+      Authorization: `Bearer ${user.token}`
+    }
+  }
+
   useEffect(() => {
     async function FetchData() {
       const { data } = await axios.get(
@@ -31,6 +36,38 @@ export default function Home() {
       const {data} = await axios.get(`https://neon-game-store-back.herokuapp.com/games?category=${category}`)
       setGamesData(data)
   }
+
+  function buyNow(id) {
+    gamesData.map((game) => {
+      if (id === game._id) {
+        const body = {
+          products: [
+            {
+              name: game.name,
+              description: game.description,
+              price: game.price,
+              imageURL: game.imageURL,
+            },
+          ],
+          total: game.price,
+        };
+        axios
+          .post(
+            "https://neon-game-store-back.herokuapp.com/checkout",
+            body,
+            config
+          )
+          .then(() => {
+            console.log("Tudo ok");
+            navigate("/checkout");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        return { gamesData };
+      }
+    });
+  }
   
   let games;
   if(gamesData.length !== 0 ){
@@ -45,9 +82,10 @@ export default function Home() {
             <p className="price">R$ {game.price.toFixed(2).replace(".",",")}</p>
           </div>
           <div className="actions">
-            <Link to="/checkout">
-              <NeonButton content="Comprar agora"/>
-            </Link> 
+          <button className="buttonBuyNow" onClick={() => buyNow(game._id)}>
+            <NeonButton content="Comprar agora" />
+          </button>
+             
           </div>
         </GameSection>
       );
@@ -137,18 +175,10 @@ const GameSection = styled.div`
     margin-bottom: 100px;
   }
 
-  .removeCart {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 16, 16, 1) 0%,
-      rgba(138, 0, 0, 1) 100%
-    );
-    color: white;
-  }
-
   .buttonBuyNow {
     background-color: #11ffee00;
     border: none;
     color: #ffffff;
   }
+  
 `;

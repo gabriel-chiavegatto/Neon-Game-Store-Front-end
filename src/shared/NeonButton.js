@@ -1,11 +1,11 @@
 import styled from "styled-components"
 
 
-export default function NeonButton({content, margin}){
+export default function NeonButton({content, margin, onClick}){
 
     return (
         <>
-            <Button margin={margin}>{content}</Button>
+            <Button onClick={onClick} margin={margin}>{content}</Button>
         </> 
     )
 }

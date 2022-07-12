@@ -29,12 +29,7 @@ export default function Checkout() {
 
   useEffect(() => {
     async function GetOrder() {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
+     
       try {
         const response = await axios.get(
           "https://neon-game-store-back.herokuapp.com/checkout",
@@ -49,7 +44,7 @@ export default function Checkout() {
     }
     GetOrder();
   }, []);
-
+ 
   if (order.length === 0) {
     return (
       <Loading>
@@ -65,7 +60,7 @@ export default function Checkout() {
   function RenderProducts() {
     console.log(order);
 
-    return order[0].products.map((product, index) => {
+    return order[order.length-1].products.map((product, index) => {
       const { name, price, imageURL, _id } = product;
       return (
         <>
@@ -90,7 +85,7 @@ export default function Checkout() {
       <>
         <Total>
           <span>TOTAL</span>
-          <span>${order[0].total}</span>
+          <span>${order[order.length-1].total}</span>
         </Total>
       </>
     );

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Footer from "../shared/Footer";
 import UserContext from "../context/UserContext"
@@ -15,6 +15,7 @@ export default function Game() {
       Authorization: `Bearer ${user.token}`
     }
   }
+  const navigate = useNavigate()
 
   console.log(game)
     useEffect(() => {
@@ -25,7 +26,37 @@ export default function Game() {
     FetchData() 
     }, [id])
 
+    function buyNow() {
+          const body = {
+            products: [
+              {
+                name: game.name,
+                description: game.description,
+                price: game.price,
+                imageURL: game.imageURL,
+              },
+            ],
+            total: game.price,
+          };
+          axios
+            .post(
+              "https://neon-game-store-back.herokuapp.com/checkout",
+              body,
+              config
+            )
+            .then(() => {
+              console.log("Tudo ok");
+              navigate("/checkout");
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+     
+      };
+    
+
      const isEmpty = Object.keys(game).length === 0 
+
      async function addToCart(){
       try {
         const body = {name: game.name, price:game.price, description:game.description, imageURL:game.imageURL}
@@ -68,9 +99,9 @@ export default function Game() {
           <div className="footer">
             <div className="actions">
               <div>
-              <Link to="/checkout">
-                <button className="comprar">Compre Agora</button>
-              </Link>
+             
+                <button onClick={buyNow} className="comprar">Compre Agora</button>
+            
               {added ? <button onClick={removeFromCart}>Remover do Carrinho</button> : <button onClick={addToCart}>Adicionar ao Carrinho</button>}
               </div>
               <p className="price">R$ {game.price.toFixed(2).replace(".",",")}</p>
